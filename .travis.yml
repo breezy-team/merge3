@@ -16,7 +16,7 @@ env:
   - PYTHONHASHSEED=random
 
 install:
-  - travis_retry pip install -U pip setuptools
+  - travis_retry pip install -U pip setuptools patiencediff
 
 script:
   - python -m unittest merge3.test_merge3
