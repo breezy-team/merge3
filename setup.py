@@ -3,8 +3,13 @@
 
 from setuptools import setup
 
+with open('README.rst', 'r') as f:
+    long_description = f.read()
+
 setup(name="merge3",
       description="Python implementation of 3-way merge.",
+      long_description=long_description,
+      long_description_content_type='text/x-rst',
       version="0.0.1",
       maintainer="Breezy Developers",
       maintainer_email="team@breezy-vcs.org",
