@@ -1,0 +1,2 @@
+Test-Command: python3 -m unittest merge3.test_merge3
+Depends: @
