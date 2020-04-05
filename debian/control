@@ -3,7 +3,8 @@ Section: python
 Priority: optional
 Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
 Uploaders: Jelmer Vernooĳ <jelmer@debian.org>
-Build-Depends: debhelper-compat (= 12), dh-python, python3-all
+Standards-Version: 4.5.0
+Build-Depends: debhelper-compat (= 12), dh-python, python3-all, python3-setuptools
 Vcs-Git: https://salsa.debian.org/python-team/modules/merge3.git
 Vcs-Browser: https://salsa.debian.org/python-team/modules/merge3
 Homepage: https://github.com/breezy-team/merge3

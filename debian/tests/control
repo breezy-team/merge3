@@ -1,2 +1,2 @@
-Test-Command: python3 -m unittest merge3.test_merge3
+Test-Command: python3 -m unittest --quiet merge3.test_merge3
 Depends: @
