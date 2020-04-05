@@ -1,0 +1,19 @@
+Source: python-merge3
+Section: python
+Priority: optional
+Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Uploaders: Jelmer Vernooĳ <jelmer@debian.org>
+Build-Depends: debhelper-compat (= 12), dh-python, python3-all
+Vcs-Git: https://salsa.debian.org/python-team/modules/merge3.git
+Vcs-Browser: https://salsa.debian.org/python-team/modules/merge3
+Homepage: https://github.com/breezy-team/merge3
+
+Package: python3-merge3
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: Python implementation of three-way merge
+ A Python implementation of 3-way merge of texts.
+ .
+ Given BASE, OTHER, THIS, tries to produce a combined text
+ incorporating the changes from both BASE->OTHER and BASE->THIS.
+ All three will typically be sequences of lines.

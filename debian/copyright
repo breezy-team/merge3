@@ -1,0 +1,17 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: merge3
+Upstream-Contact: Breezy-Developers <breezy-core@googlegroups.com>
+Source: https://github.com/breezy-team/merge3
+
+Files: *
+Copyright:
+  2005-2010 Canonical Ltd
+License: GPL-2+
+
+Files: debian/*
+Copyright: 2020 Jelmer Vernooĳ <jelmer@debian.org>
+License: GPL-2+
+
+License: GPL-2+
+ On Debian systems the full text of the GNU General Public License version 2
+ can be found in the `/usr/share/common-licenses/GPL-2' file.
