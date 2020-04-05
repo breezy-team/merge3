@@ -1,9 +1,5 @@
 python-merge3 (0.0.2~git20200405.d729b98-1) UNRELEASED; urgency=medium
 
   * Initial release. (Closes: #955998)
-  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
-    Repository-Browse.
-  * Add debian/watch file, using pypi.
-  * Upgrade to newer source format 3.0 (quilt).
 
  -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 05 Apr 2020 20:34:29 +0000
