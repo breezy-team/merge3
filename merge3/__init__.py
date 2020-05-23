@@ -230,7 +230,8 @@ class Merge3(object):
         # section a[0:ia] has been disposed of, etc
         iz = ia = ib = 0
 
-        for zmatch, zend, amatch, aend, bmatch, bend in self.find_sync_regions():
+        for (zmatch, zend, amatch, aend, bmatch,
+             bend) in self.find_sync_regions():
             matchlen = zend - zmatch
             # invariants:
             #   matchlen >= 0
@@ -238,13 +239,13 @@ class Merge3(object):
             #   matchlen == (bend - bmatch)
             len_a = amatch - ia
             len_b = bmatch - ib
-            len_base = zmatch - iz
+            # len_base = zmatch - iz
             # invariants:
             # assert len_a >= 0
             # assert len_b >= 0
             # assert len_base >= 0
 
-            #print 'unmatched a=%d, b=%d' % (len_a, len_b)
+            # print 'unmatched a=%d, b=%d' % (len_a, len_b)
 
             if len_a or len_b:
                 # try to avoid actually slicing the lists
@@ -269,9 +270,11 @@ class Merge3(object):
                                                     ib, bmatch):
                                 yield node
                         else:
-                            yield 'conflict', iz, zmatch, ia, amatch, ib, bmatch
+                            yield (
+                                'conflict', iz, zmatch, ia, amatch, ib, bmatch)
                     else:
-                        raise AssertionError("can't handle a=b=base but unmatched")
+                        raise AssertionError(
+                            "can't handle a=b=base but unmatched")
 
                 ia = amatch
                 ib = bmatch
@@ -291,20 +294,22 @@ class Merge3(object):
                 ia = aend
                 ib = bend
 
-    def _refine_cherrypick_conflict(self, zstart, zend, astart, aend, bstart, bend):
+    def _refine_cherrypick_conflict(self, zstart, zend, astart, aend, bstart,
+                                    bend):
         """When cherrypicking b => a, ignore matches with b and base."""
         # Do not emit regions which match, only regions which do not match
-        matches = self.sequence_matcher(None,
-            self.base[zstart:zend], self.b[bstart:bend]).get_matching_blocks()
+        matcher = self.sequence_matcher(
+            None, self.base[zstart:zend], self.b[bstart:bend])
+        matches = matcher.get_matching_blocks()
         last_base_idx = 0
         last_b_idx = 0
         last_b_idx = 0
         yielded_a = False
         for base_idx, b_idx, match_len in matches:
-            conflict_z_len = base_idx - last_base_idx
+            # conflict_z_len = base_idx - last_base_idx
             conflict_b_len = b_idx - last_b_idx
-            if conflict_b_len == 0: # There are no lines in b which conflict,
-                                    # so skip it
+            # There are no lines in b which conflict, so skip it
+            if conflict_b_len == 0:
                 pass
             else:
                 if yielded_a:
@@ -314,9 +319,9 @@ class Merge3(object):
                 else:
                     # The first conflict gets the a-range
                     yielded_a = True
-                    yield ('conflict', zstart + last_base_idx, zstart +
-                    base_idx,
-                           astart, aend, bstart + last_b_idx, bstart + b_idx)
+                    yield (
+                        'conflict', zstart + last_base_idx, zstart + base_idx,
+                        astart, aend, bstart + last_b_idx, bstart + b_idx)
             last_base_idx = base_idx + match_len
             last_b_idx = b_idx + match_len
         if last_base_idx != zend - zstart or last_b_idx != bend - bstart:
@@ -467,7 +472,7 @@ def main(argv):
 
     m3 = Merge3(base, a, b)
 
-    #for sr in m3.find_sync_regions():
+    # for sr in m3.find_sync_regions():
     #    print sr
 
     # sys.stdout.writelines(m3.merge_lines(name_a=argv[1], name_b=argv[3]))

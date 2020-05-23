@@ -27,6 +27,6 @@ jobs:
         python -m flake8
     - name: Test suite run
       run: |
-        python -m unittest xandikos.tests.test_suite
+        python -m unittest merge3.test_merge3
       env:
         PYTHONHASHSEED: random

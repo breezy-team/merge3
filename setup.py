@@ -28,5 +28,4 @@ setup(name="merge3",
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Operating System :: POSIX',
-      ]
-)
+      ])
