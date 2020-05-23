@@ -426,8 +426,8 @@ bbb
             '>>>>>>> THIS\r'.splitlines(True), list(m_lines))
 
     def test_merge3_cherrypick(self):
-        base_text = "ba\nb\n"
-        this_text = "ba\n"
+        base_text = "a\nb\n"
+        this_text = "a\n"
         other_text = "a\nb\nc\n"
         # When cherrypicking, lines in base are not part of the conflict
         m3 = merge3.Merge3(base_text.splitlines(True),
