@@ -318,6 +318,20 @@ bbb
             ">>>>>>> THIS\n")
         self.assertEqual(optimal_text, merged_text)
 
+    def test_cherrypick(self):
+        base_text = "ba\nb\n"
+        this_text = "ba\n"
+        other_text = "a\nb\nc\n"
+
+        m3 = merge3.Merge3(
+            base_text.splitlines(True),
+            other_text.splitlines(True),
+            this_text.splitlines(True))
+
+        self.assertEqual(m3.find_unconflicted(), [])
+
+        self.assertEqual(list(m3.find_sync_regions()), [(2, 2, 3, 3, 1, 1)])
+
     def test_minimal_conflicts_common_with_patiencediff(self):
         """Reprocessing"""
         try:
