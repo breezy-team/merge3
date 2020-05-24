@@ -1,11 +1,4 @@
-python-merge3 (0.0.3-1) UNRELEASED; urgency=medium
-
-  * New upstream release.
-  * Drop unnecessary patch failing-test.diff.
-
- -- Jelmer Vernooĳ <jelmer@debian.org>  Sat, 23 May 2020 22:20:56 +0000
-
-python-merge3 (0.0.2~git20200405.d729b98-1) unstable; urgency=medium
+python-merge3 (0.0.3-1) unstable; urgency=medium
 
   * Initial release. (Closes: #955998)
 
