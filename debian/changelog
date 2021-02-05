@@ -1,4 +1,4 @@
-python-merge3 (0.0.4-1) UNRELEASED; urgency=medium
+python-merge3 (0.0.4-1) unstable; urgency=medium
 
   * Initial release. (Closes: #955998)
 
