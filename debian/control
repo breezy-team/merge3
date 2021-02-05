@@ -1,7 +1,7 @@
 Source: python-merge3
 Section: python
 Priority: optional
-Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
 Uploaders: Jelmer Vernooĳ <jelmer@debian.org>
 Standards-Version: 4.5.0
 Build-Depends: debhelper-compat (= 12), dh-python, python3-all, python3-setuptools
