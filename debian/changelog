@@ -1,6 +1,8 @@
 python-merge3 (0.0.4-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Update fields Vcs-Browser, Vcs-Git for maintainer Debian Python Modules
+    Team.
 
  -- Jelmer Vernooĳ <jelmer@debian.org>  Fri, 05 Feb 2021 01:57:28 +0000
 
