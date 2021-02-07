@@ -1,6 +1,7 @@
 python-merge3 (0.0.4-2) UNRELEASED; urgency=medium
 
   * Bump debhelper-compat to 13.
+  * Add signing key.
 
  -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 07 Feb 2021 20:19:13 +0000
 
