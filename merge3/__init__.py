@@ -20,7 +20,7 @@ from __future__ import absolute_import
 # s: "i hate that."
 
 
-__version__ = (0, 0, 7)
+__version__ = (0, 0, 8)
 
 
 class CantReprocessAndShowBase(Exception):
