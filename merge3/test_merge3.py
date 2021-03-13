@@ -303,6 +303,15 @@ bbb
         ml = list(m3.merge_lines('LAO', 'TAO'))
         self.assertEqual(ml, MERGED_RESULT)
 
+    def test_merge_poem_bytes(self):
+        """Test case from diff3 manual"""
+        m3 = merge3.Merge3(
+            [l.encode() for l in TZU],
+            [l.encode() for l in LAO],
+            [l.encode() for l in TAO])
+        ml = list(m3.merge_lines('LAO', 'TAO'))
+        self.assertEqual(ml, [l.encode() for l in MERGED_RESULT])
+
     def test_minimal_conflicts_common(self):
         """Reprocessing"""
         base_text = ("a\n" * 20).splitlines(True)
