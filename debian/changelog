@@ -1,8 +1,8 @@
-python-merge3 (0.0.7-1) UNRELEASED; urgency=medium
+python-merge3 (0.0.7-1) unstable; urgency=medium
 
   * New upstream release.
 
- -- Jelmer Vernooĳ <jelmer@debian.org>  Sat, 13 Mar 2021 00:49:12 +0000
+ -- Jelmer Vernooĳ <jelmer@debian.org>  Sat, 13 Mar 2021 00:50:47 +0000
 
 python-merge3 (0.0.4-2) unstable; urgency=medium
 
