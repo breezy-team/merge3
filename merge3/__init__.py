@@ -20,7 +20,7 @@ from __future__ import absolute_import
 # s: "i hate that."
 
 
-__version__ = (0, 0, 4)
+__version__ = (0, 0, 7)
 
 
 class CantReprocessAndShowBase(Exception):
@@ -88,6 +88,16 @@ class Merge3(object):
         self.is_cherrypick = is_cherrypick
         self.sequence_matcher = sequence_matcher
 
+    def _uses_bytes(self):
+        if len(self.a) > 0:
+            return isinstance(self.a[0], bytes)
+        elif len(self.base) > 0:
+            return isinstance(self.base[0], bytes)
+        elif len(self.b) > 0:
+            return isinstance(self.b[0], bytes)
+        else:
+            return False
+
     def merge_lines(self,
                     name_a=None,
                     name_b=None,
@@ -99,12 +109,26 @@ class Merge3(object):
                     reprocess=False):
         """Return merge in cvs-like form.
         """
-        newline = '\n'
-        if len(self.a) > 0:
-            if self.a[0].endswith('\r\n'):
-                newline = '\r\n'
-            elif self.a[0].endswith('\r'):
-                newline = '\r'
+        if self._uses_bytes():
+            if len(self.a) > 0:
+                if self.a[0].endswith(b'\r\n'):
+                    newline = b'\r\n'
+                elif self.a[0].endswith(b'\r'):
+                    newline = b'\r'
+                else:
+                    newline = b'\n'
+            else:
+                newline = b'\n'
+        else:
+            if len(self.a) > 0:
+                if self.a[0].endswith('\r\n'):
+                    newline = '\r\n'
+                elif self.a[0].endswith('\r'):
+                    newline = '\r'
+                else:
+                    newline = '\n'
+            else:
+                newline = '\n'
         if base_marker and reprocess:
             raise CantReprocessAndShowBase()
         if name_a:
@@ -113,6 +137,12 @@ class Merge3(object):
             end_marker = end_marker + ' ' + name_b
         if name_base and base_marker:
             base_marker = base_marker + ' ' + name_base
+        if self._uses_bytes():
+            start_marker = start_marker.encode()
+            end_marker = end_marker.encode()
+            mid_marker = mid_marker.encode()
+            if base_marker is not None:
+                base_marker = base_marker.encode()
         merge_regions = self.merge_regions()
         if reprocess is True:
             merge_regions = self.reprocess_merge_regions(merge_regions)

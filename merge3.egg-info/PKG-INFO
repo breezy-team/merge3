@@ -1,0 +1,47 @@
+Metadata-Version: 2.1
+Name: merge3
+Version: 0.0.7
+Summary: Python implementation of 3-way merge.
+Home-page: https://www.breezy-vcs.org/
+Maintainer: Breezy Developers
+Maintainer-email: team@breezy-vcs.org
+License: GNU GPLv2 or later
+Description: A Python implementation of 3-way merge of texts.
+        
+        Given BASE, OTHER, THIS, tries to produce a combined text
+        incorporating the changes from both BASE->OTHER and BASE->THIS.
+        All three will typically be sequences of lines.
+        
+        Usage
+        =====
+        
+        From the command-line::
+        
+            $ echo foo > mine
+            $ echo bar > base
+            $ echo blah > other
+            $ python -m merge3 mine base other > merged
+            $ cat merged
+        
+        Or from Python::
+        
+            >>> import merge3
+            >>> m3 = merge3.Merge3(
+            ...                    ['common\n', 'base\n'],
+            ...                    ['common\n', 'a\n'],
+            ...                    ['common\n', 'b\n'])
+            >>> list(m3.merge_annotated())
+            ['u | common\n', '<<<<\n', 'A | a\n', '----\n', 'B | b\n', '>>>>\n']
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Operating System :: POSIX
+Description-Content-Type: text/x-rst

@@ -1,0 +1,14 @@
+.gitignore
+AUTHORS
+COPYING
+MANIFEST.in
+README.rst
+releaser.conf
+setup.py
+.github/workflows/pythonpackage.yml
+merge3/__init__.py
+merge3/test_merge3.py
+merge3.egg-info/PKG-INFO
+merge3.egg-info/SOURCES.txt
+merge3.egg-info/dependency_links.txt
+merge3.egg-info/top_level.txt
