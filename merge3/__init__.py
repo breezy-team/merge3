@@ -109,6 +109,8 @@ class Merge3(object):
                     reprocess=False):
         """Return merge in cvs-like form.
         """
+        if base_marker and reprocess:
+            raise CantReprocessAndShowBase()
         if self._uses_bytes():
             if len(self.a) > 0:
                 if self.a[0].endswith(b'\r\n'):
@@ -119,6 +121,26 @@ class Merge3(object):
                     newline = b'\n'
             else:
                 newline = b'\n'
+            if isinstance(start_marker, str):
+                start_marker = start_marker.encode()
+            if isinstance(end_marker, str):
+                end_marker = end_marker.encode()
+            if isinstance(mid_marker, str):
+                mid_marker = mid_marker.encode()
+            if base_marker is not None and isinstance(base_marker, str):
+                base_marker = base_marker.encode()
+            if name_a:
+                if isinstance(name_a, str):
+                    name_a = name_a.encode()
+                start_marker = start_marker + b' ' + name_a
+            if name_b:
+                if isinstance(name_b, str):
+                    name_b = name_b.encode()
+                end_marker = end_marker + b' ' + name_b
+            if name_base and base_marker:
+                if isinstance(name_base, str):
+                    name_base = name_base.encode()
+                base_marker = base_marker + b' ' + name_base
         else:
             if len(self.a) > 0:
                 if self.a[0].endswith('\r\n'):
@@ -129,20 +151,12 @@ class Merge3(object):
                     newline = '\n'
             else:
                 newline = '\n'
-        if base_marker and reprocess:
-            raise CantReprocessAndShowBase()
-        if name_a:
-            start_marker = start_marker + ' ' + name_a
-        if name_b:
-            end_marker = end_marker + ' ' + name_b
-        if name_base and base_marker:
-            base_marker = base_marker + ' ' + name_base
-        if self._uses_bytes():
-            start_marker = start_marker.encode()
-            end_marker = end_marker.encode()
-            mid_marker = mid_marker.encode()
-            if base_marker is not None:
-                base_marker = base_marker.encode()
+            if name_a:
+                start_marker = start_marker + ' ' + name_a
+            if name_b:
+                end_marker = end_marker + ' ' + name_b
+            if name_base and base_marker:
+                base_marker = base_marker + ' ' + name_base
         merge_regions = self.merge_regions()
         if reprocess is True:
             merge_regions = self.reprocess_merge_regions(merge_regions)
@@ -177,25 +191,41 @@ class Merge3(object):
 
         Most useful for debugging merge.
         """
+        UNCHANGED = 'u'
+        SEP = ' | '
+        CONFLICT_START = '<<<<\n'
+        CONFLICT_MID = '----\n'
+        CONFLICT_END = '>>>>\n'
+        WIN_A = 'a'
+        WIN_B = 'b'
+        if self._uses_bytes():
+            UNCHANGED = UNCHANGED.encode()
+            SEP = SEP.encode()
+            CONFLICT_START = CONFLICT_START.encode()
+            CONFLICT_MID = CONFLICT_MID.encode()
+            CONFLICT_END = CONFLICT_END.encode()
+            WIN_A = WIN_A.encode()
+            WIN_B = WIN_B.encode()
+
         for t in self.merge_regions():
             what = t[0]
             if what == 'unchanged':
                 for i in range(t[1], t[2]):
-                    yield 'u | ' + self.base[i]
+                    yield UNCHANGED + SEP + self.base[i]
             elif what == 'a' or what == 'same':
                 for i in range(t[1], t[2]):
-                    yield what[0] + ' | ' + self.a[i]
+                    yield WIN_A.lower() + SEP + self.a[i]
             elif what == 'b':
                 for i in range(t[1], t[2]):
-                    yield 'b | ' + self.b[i]
+                    yield WIN_B.lower() + SEP + self.b[i]
             elif what == 'conflict':
-                yield '<<<<\n'
+                yield CONFLICT_START
                 for i in range(t[3], t[4]):
-                    yield 'A | ' + self.a[i]
-                yield '----\n'
+                    yield WIN_A.upper() + SEP + self.a[i]
+                yield CONFLICT_MID
                 for i in range(t[5], t[6]):
-                    yield 'B | ' + self.b[i]
-                yield '>>>>\n'
+                    yield WIN_B.upper() + SEP + self.b[i]
+                yield CONFLICT_END
             else:
                 raise ValueError(what)
 
@@ -492,26 +522,3 @@ class Merge3(object):
                 del bm[0]
 
         return unc
-
-
-def main(argv):
-    # as for diff3 and meld the syntax is "MINE BASE OTHER"
-    with open(argv[1], 'rt') as f:
-        a = f.readlines()
-    with open(argv[2], 'rt') as f:
-        base = f.readlines()
-    with open(argv[3], 'rt') as f:
-        b = f.readlines()
-
-    m3 = Merge3(base, a, b)
-
-    # for sr in m3.find_sync_regions():
-    #    print sr
-
-    # sys.stdout.writelines(m3.merge_lines(name_a=argv[1], name_b=argv[3]))
-    sys.stdout.writelines(m3.merge_annotated())
-
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
