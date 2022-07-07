@@ -52,7 +52,7 @@ def intersect(ra, rb):
 def compare_range(a, astart, aend, b, bstart, bend):
     """Compare a[astart:aend] == b[bstart:bend], without slicing.
     """
-    if (aend-astart) != (bend-bstart):
+    if (aend - astart) != (bend - bstart):
         return False
     for ia, ib in zip(range(astart, aend), range(bstart, bend)):
         if a[ia] != b[ib]:
@@ -102,9 +102,9 @@ class Merge3(object):
                     name_a=None,
                     name_b=None,
                     name_base=None,
-                    start_marker='<<<<<<<',
-                    mid_marker='=======',
-                    end_marker='>>>>>>>',
+                    start_marker=None,
+                    mid_marker=None,
+                    end_marker=None,
                     base_marker=None,
                     reprocess=False):
         """Return merge in cvs-like form.
@@ -121,27 +121,20 @@ class Merge3(object):
                     newline = b'\n'
             else:
                 newline = b'\n'
-            if isinstance(start_marker, str):
-                start_marker = start_marker.encode()
-            if isinstance(end_marker, str):
-                end_marker = end_marker.encode()
-            if isinstance(mid_marker, str):
-                mid_marker = mid_marker.encode()
-            if base_marker is not None and isinstance(base_marker, str):
-                base_marker = base_marker.encode()
-            if name_a:
-                if isinstance(name_a, str):
-                    name_a = name_a.encode()
-                start_marker = start_marker + b' ' + name_a
-            if name_b:
-                if isinstance(name_b, str):
-                    name_b = name_b.encode()
-                end_marker = end_marker + b' ' + name_b
-            if name_base and base_marker:
-                if isinstance(name_base, str):
-                    name_base = name_base.encode()
-                base_marker = base_marker + b' ' + name_base
+            if start_marker is None:
+                start_marker = b'<<<<<<<'
+            if mid_marker is None:
+                mid_marker = b'======='
+            if end_marker is None:
+                end_marker = b'>>>>>>>'
+            space = b' '
         else:
+            if start_marker is None:
+                start_marker = '<<<<<<<'
+            if mid_marker is None:
+                mid_marker = '======='
+            if end_marker is None:
+                end_marker = '>>>>>>>'
             if len(self.a) > 0:
                 if self.a[0].endswith('\r\n'):
                     newline = '\r\n'
@@ -151,12 +144,13 @@ class Merge3(object):
                     newline = '\n'
             else:
                 newline = '\n'
-            if name_a:
-                start_marker = start_marker + ' ' + name_a
-            if name_b:
-                end_marker = end_marker + ' ' + name_b
-            if name_base and base_marker:
-                base_marker = base_marker + ' ' + name_base
+            space = ' '
+        if name_a:
+            start_marker = start_marker + space + name_a
+        if name_b:
+            end_marker = end_marker + space + name_b
+        if name_base and base_marker:
+            base_marker = base_marker + space + name_base
         merge_regions = self.merge_regions()
         if reprocess is True:
             merge_regions = self.reprocess_merge_regions(merge_regions)
@@ -191,21 +185,22 @@ class Merge3(object):
 
         Most useful for debugging merge.
         """
-        UNCHANGED = 'u'
-        SEP = ' | '
-        CONFLICT_START = '<<<<\n'
-        CONFLICT_MID = '----\n'
-        CONFLICT_END = '>>>>\n'
-        WIN_A = 'a'
-        WIN_B = 'b'
         if self._uses_bytes():
-            UNCHANGED = UNCHANGED.encode()
-            SEP = SEP.encode()
-            CONFLICT_START = CONFLICT_START.encode()
-            CONFLICT_MID = CONFLICT_MID.encode()
-            CONFLICT_END = CONFLICT_END.encode()
-            WIN_A = WIN_A.encode()
-            WIN_B = WIN_B.encode()
+            UNCHANGED = b'u'
+            SEP = b' | '
+            CONFLICT_START = b'<<<<\n'
+            CONFLICT_MID = b'----\n'
+            CONFLICT_END = b'>>>>\n'
+            WIN_A = b'a'
+            WIN_B = b'b'
+        else:
+            UNCHANGED = 'u'
+            SEP = ' | '
+            CONFLICT_START = '<<<<\n'
+            CONFLICT_MID = '----\n'
+            CONFLICT_END = '>>>>\n'
+            WIN_A = 'a'
+            WIN_B = 'b'
 
         for t in self.merge_regions():
             what = t[0]
@@ -293,8 +288,7 @@ class Merge3(object):
         # section a[0:ia] has been disposed of, etc
         iz = ia = ib = 0
 
-        for (zmatch, zend, amatch, aend, bmatch,
-             bend) in self.find_sync_regions():
+        for zmatch, zend, amatch, aend, bmatch, bend in self.find_sync_regions():
             matchlen = zend - zmatch
             # invariants:
             #   matchlen >= 0
@@ -302,11 +296,9 @@ class Merge3(object):
             #   matchlen == (bend - bmatch)
             len_a = amatch - ia
             len_b = bmatch - ib
-            # len_base = zmatch - iz
             # invariants:
             # assert len_a >= 0
             # assert len_b >= 0
-            # assert len_base >= 0
 
             # print 'unmatched a=%d, b=%d' % (len_a, len_b)
 
@@ -329,8 +321,8 @@ class Merge3(object):
                     elif not equal_a and not equal_b:
                         if self.is_cherrypick:
                             for node in self._refine_cherrypick_conflict(
-                                                    iz, zmatch, ia, amatch,
-                                                    ib, bmatch):
+                                    iz, zmatch, ia, amatch,
+                                    ib, bmatch):
                                 yield node
                         else:
                             yield (
@@ -369,9 +361,7 @@ class Merge3(object):
         last_b_idx = 0
         yielded_a = False
         for base_idx, b_idx, match_len in matches:
-            # conflict_z_len = base_idx - last_base_idx
             conflict_b_len = b_idx - last_b_idx
-            # There are no lines in b which conflict, so skip it
             if conflict_b_len == 0:
                 pass
             else:
@@ -413,7 +403,7 @@ class Merge3(object):
             a_region = self.a[ia:amatch]
             b_region = self.b[ib:bmatch]
             matches = self.sequence_matcher(
-                    None, a_region, b_region).get_matching_blocks()
+                None, a_region, b_region).get_matching_blocks()
             next_a = ia
             next_b = ib
             for region_ia, region_ib, region_len in matches[:-1]:
@@ -423,7 +413,7 @@ class Merge3(object):
                                            region_ib)
                 if reg is not None:
                     yield reg
-                yield 'same', region_ia, region_len+region_ia
+                yield 'same', region_ia, region_len + region_ia
                 next_a = region_ia + region_len
                 next_b = region_ib + region_len
             reg = self.mismatch_region(next_a, amatch, next_b, bmatch)
@@ -431,7 +421,7 @@ class Merge3(object):
                 yield reg
 
     @staticmethod
-    def mismatch_region(next_a, region_ia,  next_b, region_ib):
+    def mismatch_region(next_a, region_ia, next_b, region_ib):
         if next_a < region_ia or next_b < region_ib:
             return 'conflict', None, None, next_a, region_ia, next_b, region_ib
 
@@ -444,9 +434,9 @@ class Merge3(object):
 
         ia = ib = 0
         amatches = self.sequence_matcher(
-                None, self.base, self.a).get_matching_blocks()
+            None, self.base, self.a).get_matching_blocks()
         bmatches = self.sequence_matcher(
-                None, self.base, self.b).get_matching_blocks()
+            None, self.base, self.b).get_matching_blocks()
         len_a = len(amatches)
         len_b = len(bmatches)
 
@@ -458,7 +448,7 @@ class Merge3(object):
 
             # there is an unconflicted block at i; how long does it
             # extend?  until whichever one ends earlier.
-            i = intersect((abase, abase+alen), (bbase, bbase+blen))
+            i = intersect((abase, abase + alen), (bbase, bbase + blen))
             if i:
                 intbase = i[0]
                 intend = i[1]
@@ -499,9 +489,9 @@ class Merge3(object):
     def find_unconflicted(self):
         """Return a list of ranges in base that are not conflicted."""
         am = self.sequence_matcher(
-                None, self.base, self.a).get_matching_blocks()
+            None, self.base, self.a).get_matching_blocks()
         bm = self.sequence_matcher(
-                None, self.base, self.b).get_matching_blocks()
+            None, self.base, self.b).get_matching_blocks()
 
         unc = []
 

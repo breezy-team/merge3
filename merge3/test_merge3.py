@@ -309,7 +309,7 @@ bbb
             [line.encode() for line in TZU],
             [line.encode() for line in LAO],
             [line.encode() for line in TAO])
-        ml = list(m3.merge_lines('LAO', 'TAO'))
+        ml = list(m3.merge_lines('LAO'.encode(), 'TAO'.encode()))
         self.assertEqual(
             ml, [line.encode() for line in MERGED_RESULT])
 
