@@ -288,7 +288,8 @@ class Merge3(object):
         # section a[0:ia] has been disposed of, etc
         iz = ia = ib = 0
 
-        for zmatch, zend, amatch, aend, bmatch, bend in self.find_sync_regions():
+        for (zmatch, zend, amatch, aend, bmatch,
+             bend) in self.find_sync_regions():
             matchlen = zend - zmatch
             # invariants:
             #   matchlen >= 0
@@ -426,7 +427,7 @@ class Merge3(object):
             return 'conflict', None, None, next_a, region_ia, next_b, region_ib
 
     def find_sync_regions(self):
-        """Return a list of sync regions, where both descendents match the base.
+        """Return list of sync regions, where both descendents match the base.
 
         Generates a list of (base1, base2, a1, a2, b1, b2).  There is
         always a zero-length sync region at the end of all the files.

@@ -80,7 +80,8 @@ TAO = split_lines("""     The Way that can be told of is not the eternal Way;
 
 """)
 
-MERGED_RESULT = split_lines("""     The Way that can be told of is not the eternal Way;
+MERGED_RESULT = split_lines(
+    """     The Way that can be told of is not the eternal Way;
      The name that can be named is not the eternal name.
      The Nameless is the origin of Heaven and Earth;
      The Named is the mother of all things.
