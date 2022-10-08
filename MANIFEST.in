@@ -1,3 +1,4 @@
 include README.rst
 include AUTHORS
 include COPYING
+include py.typed
