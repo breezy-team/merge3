@@ -20,6 +20,8 @@ classifiers = [
     "Operating System :: POSIX",
 ]
 dynamic = ["version"]
+requires-python = ">=3.6"
+dependencies = []
 
 [project.readme]
 file = "README.rst"
@@ -38,3 +40,6 @@ merge3 = ["py.typed"]
 
 [tool.setuptools.dynamic]
 version = {attr = "merge3.__version__"}
+
+[project.scripts]
+merge3 = "merge3.__main__:main"
