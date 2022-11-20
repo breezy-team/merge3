@@ -19,7 +19,7 @@
 # s: "i hate that."
 
 
-__version__ = (0, 0, 10)
+__version__ = (0, 0, 12)
 
 
 class CantReprocessAndShowBase(Exception):
