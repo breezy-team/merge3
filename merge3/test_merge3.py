@@ -14,9 +14,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import merge3
-import unittest
 import sys
+import unittest
+
+import merge3
 
 if sys.version_info[0] == 3:
     import struct
