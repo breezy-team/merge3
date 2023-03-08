@@ -1,3 +1,40 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "merge3"
+description = "Python implementation of 3-way merge"
+maintainers = [{name = "Breezy Developers", email = "team@breezy-vcs.org"}]
+license = {text = "GNU GPLv2 or later"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Operating System :: POSIX",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[project.urls]
+Homepage = "https://www.breezy-vcs.org/"
+GitHub = "https://github.com/breezy-team/merge3"
+
+[tool.setuptools]
+packages = ["merge3"]
+include-package-data = false
+
+[tool.setuptools.package-data]
+merge3 = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = {attr = "merge3.__version__"}
