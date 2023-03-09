@@ -17,7 +17,7 @@
 from . import Merge3
 
 
-def main(argv):
+def main(argv=None):
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -35,7 +35,7 @@ def main(argv):
         '--annotated', action='store_true',
         help='Show annotated view.')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     m3 = Merge3(
         args.base.readlines(),
@@ -53,4 +53,4 @@ def main(argv):
 
 if __name__ == '__main__':
     import sys
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv[1:]))
