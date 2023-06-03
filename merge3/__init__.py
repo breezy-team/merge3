@@ -67,7 +67,8 @@ class Merge3:
     All three will typically be sequences of lines.
     """
 
-    def __init__(self, base, a, b, is_cherrypick=False, sequence_matcher=None) -> None:
+    def __init__(self, base, a, b, is_cherrypick: bool = False,
+                 sequence_matcher=None) -> None:
         """Constructor.
 
         :param base: lines in BASE
