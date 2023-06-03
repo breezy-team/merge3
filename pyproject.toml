@@ -43,3 +43,30 @@ version = {attr = "merge3.__version__"}
 
 [project.scripts]
 merge3 = "merge3.__main__:main"
+
+[tool.ruff]
+select = [
+    "ANN",
+    "D",
+    "E",
+    "F",
+    "I",
+    "UP",
+]
+target-version = "py37"
+ignore = [
+    "ANN001",
+    "ANN101",
+    "ANN201",
+    "ANN202",
+    "ANN205",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D415",
+]
+
+[tool.ruff.pydocstyle]
+convention = "google"
