@@ -49,8 +49,7 @@ def intersect(ra, rb):
 
 
 def compare_range(a, astart, aend, b, bstart, bend):
-    """Compare a[astart:aend] == b[bstart:bend], without slicing.
-    """
+    """Compare a[astart:aend] == b[bstart:bend], without slicing."""
     if (aend - astart) != (bend - bstart):
         return False
     for ia, ib in zip(range(astart, aend), range(bstart, bend)):
@@ -60,14 +59,15 @@ def compare_range(a, astart, aend, b, bstart, bend):
         return True
 
 
-class Merge3(object):
+class Merge3:
     """3-way merge of texts.
 
     Given BASE, OTHER, THIS, tries to produce a combined text
     incorporating the changes from both BASE->OTHER and BASE->THIS.
-    All three will typically be sequences of lines."""
+    All three will typically be sequences of lines.
+    """
 
-    def __init__(self, base, a, b, is_cherrypick=False, sequence_matcher=None):
+    def __init__(self, base, a, b, is_cherrypick=False, sequence_matcher=None) -> None:
         """Constructor.
 
         :param base: lines in BASE
@@ -106,8 +106,7 @@ class Merge3(object):
                     end_marker=None,
                     base_marker=None,
                     reprocess=False):
-        """Return merge in cvs-like form.
-        """
+        """Return merge in cvs-like form."""
         if base_marker and reprocess:
             raise CantReprocessAndShowBase()
         if self._uses_bytes():
@@ -283,7 +282,6 @@ class Merge3(object):
         The regions in between can be in any of three cases:
         conflicted, or changed on only one side.
         """
-
         # section a[0:ia] has been disposed of, etc
         iz = ia = ib = 0
 
@@ -431,7 +429,6 @@ class Merge3(object):
         Generates a list of (base1, base2, a1, a2, b1, b2).  There is
         always a zero-length sync region at the end of all the files.
         """
-
         ia = ib = 0
         amatches = self.sequence_matcher(
             None, self.base, self.a).get_matching_blocks()

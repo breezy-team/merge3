@@ -105,7 +105,7 @@ MERGED_RESULT = split_lines(
 class TestMerge3(unittest.TestCase):
 
     def test_no_changes(self):
-        """No conflicts because nothing changed"""
+        """No conflicts because nothing changed."""
         m3 = merge3.Merge3(['aaa', 'bbb'],
                            ['aaa', 'bbb'],
                            ['aaa', 'bbb'])
@@ -157,7 +157,7 @@ class TestMerge3(unittest.TestCase):
                          ['aaa', 'bbb'])
 
     def test_no_conflicts(self):
-        """No conflicts because only one side changed"""
+        """No conflicts because only one side changed."""
         m3 = merge3.Merge3(['aaa', 'bbb'],
                            ['aaa', '111', 'bbb'],
                            ['aaa', 'bbb'])
@@ -300,13 +300,13 @@ bbb
                           (4, 4, 5, 5, 6, 6), ])
 
     def test_merge_poem(self):
-        """Test case from diff3 manual"""
+        """Test case from diff3 manual."""
         m3 = merge3.Merge3(TZU, LAO, TAO)
         ml = list(m3.merge_lines('LAO', 'TAO'))
         self.assertEqual(ml, MERGED_RESULT)
 
     def test_merge_poem_bytes(self):
-        """Test case from diff3 manual"""
+        """Test case from diff3 manual."""
         m3 = merge3.Merge3(
             [line.encode() for line in TZU],
             [line.encode() for line in LAO],
@@ -316,7 +316,7 @@ bbb
             ml, [line.encode() for line in MERGED_RESULT])
 
     def test_minimal_conflicts_common(self):
-        """Reprocessing"""
+        """Reprocessing."""
         base_text = ("a\n" * 20).splitlines(True)
         this_text = ("a\n"*10 + "b\n" * 10).splitlines(True)
         other_text = ("a\n"*10 + "c\n" + "b\n" * 8 + "c\n").splitlines(True)
@@ -345,7 +345,7 @@ bbb
         self.assertEqual(list(m3.find_sync_regions()), [(2, 2, 3, 3, 1, 1)])
 
     def test_minimal_conflicts_common_with_patiencediff(self):
-        """Reprocessing"""
+        """Reprocessing."""
         try:
             import patiencediff
         except ImportError:
@@ -367,7 +367,7 @@ bbb
 
     def test_minimal_conflicts_unique(self):
         def add_newline(s):
-            """Add a newline to each entry in the string"""
+            """Add a newline to each entry in the string."""
             return [(x+'\n') for x in s]
 
         base_text = add_newline("abcdefghijklm")
@@ -386,7 +386,7 @@ bbb
 
     def test_minimal_conflicts_nonunique(self):
         def add_newline(s):
-            """Add a newline to each entry in the string"""
+            """Add a newline to each entry in the string."""
             return [(x+'\n') for x in s]
 
         base_text = add_newline("abacddefgghij")
@@ -404,7 +404,7 @@ bbb
         self.assertEqual(optimal_text, merged_text)
 
     def test_reprocess_and_base(self):
-        """Reprocessing and showing base breaks correctly"""
+        """Reprocessing and showing base breaks correctly."""
         base_text = ("a\n" * 20).splitlines(True)
         this_text = ("a\n"*10+"b\n" * 10).splitlines(True)
         other_text = ("a\n"*10+"c\n"+"b\n" * 8 + "c\n").splitlines(True)
