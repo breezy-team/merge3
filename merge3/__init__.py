@@ -319,10 +319,9 @@ class Merge3:
                         yield 'a', ia, amatch
                     elif not equal_a and not equal_b:
                         if self.is_cherrypick:
-                            for node in self._refine_cherrypick_conflict(
-                                    iz, zmatch, ia, amatch,
-                                    ib, bmatch):
-                                yield node
+                            yield from self._refine_cherrypick_conflict(
+                                iz, zmatch, ia, amatch,
+                                ib, bmatch)
                         else:
                             yield (
                                 'conflict', iz, zmatch, ia, amatch, ib, bmatch)
