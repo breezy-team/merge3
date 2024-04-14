@@ -45,6 +45,9 @@ version = {attr = "merge3.__version__"}
 merge3 = "merge3.__main__:main"
 
 [tool.ruff]
+target-version = "py37"
+
+[tool.ruff.lint]
 select = [
     "ANN",
     "D",
@@ -53,7 +56,6 @@ select = [
     "I",
     "UP",
 ]
-target-version = "py37"
 ignore = [
     "ANN001",
     "ANN101",
@@ -68,5 +70,5 @@ ignore = [
     "D415",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"

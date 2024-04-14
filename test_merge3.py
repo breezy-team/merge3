@@ -14,18 +14,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import sys
+import struct
 import unittest
+from io import StringIO
 
 import merge3
 
-if sys.version_info[0] == 3:
-    import struct
-    int2byte = struct.Struct(">B").pack
-    from io import StringIO
-else:
-    int2byte = chr
-    from StringIO import StringIO
+int2byte = struct.Struct(">B").pack
 
 
 def split_lines(t):
