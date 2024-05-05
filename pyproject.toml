@@ -10,17 +10,17 @@ license = {text = "GNU GPLv2 or later"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Operating System :: POSIX",
 ]
 dynamic = ["version"]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 dependencies = []
 
 [project.readme]
@@ -30,6 +30,11 @@ content-type = "text/x-rst"
 [project.urls]
 Homepage = "https://www.breezy-vcs.org/"
 GitHub = "https://github.com/breezy-team/merge3"
+
+[project.optional-dependencies]
+"dev" = [
+    "ruff==0.4.3"
+]
 
 [tool.setuptools]
 packages = ["merge3"]
