@@ -31,6 +31,11 @@ content-type = "text/x-rst"
 Homepage = "https://www.breezy-vcs.org/"
 GitHub = "https://github.com/breezy-team/merge3"
 
+[project.optional-dependencies]
+"dev" = [
+    "ruff==0.4.3"
+]
+
 [tool.setuptools]
 packages = ["merge3"]
 include-package-data = false
