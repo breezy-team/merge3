@@ -67,8 +67,9 @@ class Merge3:
     All three will typically be sequences of lines.
     """
 
-    def __init__(self, base, a, b, is_cherrypick: bool = False,
-                 sequence_matcher=None) -> None:
+    def __init__(
+        self, base, a, b, is_cherrypick: bool = False, sequence_matcher=None
+    ) -> None:
         """Constructor.
 
         :param base: lines in BASE
@@ -81,6 +82,7 @@ class Merge3:
         """
         if sequence_matcher is None:
             import difflib
+
             sequence_matcher = difflib.SequenceMatcher
         self.base = base
         self.a = a
@@ -98,52 +100,54 @@ class Merge3:
         else:
             return False
 
-    def merge_lines(self,
-                    name_a=None,
-                    name_b=None,
-                    name_base=None,
-                    start_marker=None,
-                    mid_marker=None,
-                    end_marker=None,
-                    base_marker=None,
-                    reprocess=False):
+    def merge_lines(
+        self,
+        name_a=None,
+        name_b=None,
+        name_base=None,
+        start_marker=None,
+        mid_marker=None,
+        end_marker=None,
+        base_marker=None,
+        reprocess=False,
+    ):
         """Return merge in cvs-like form."""
         if base_marker and reprocess:
             raise CantReprocessAndShowBase()
         if self._uses_bytes():
             if len(self.a) > 0:
-                if self.a[0].endswith(b'\r\n'):
-                    newline = b'\r\n'
-                elif self.a[0].endswith(b'\r'):
-                    newline = b'\r'
+                if self.a[0].endswith(b"\r\n"):
+                    newline = b"\r\n"
+                elif self.a[0].endswith(b"\r"):
+                    newline = b"\r"
                 else:
-                    newline = b'\n'
+                    newline = b"\n"
             else:
-                newline = b'\n'
+                newline = b"\n"
             if start_marker is None:
-                start_marker = b'<<<<<<<'
+                start_marker = b"<<<<<<<"
             if mid_marker is None:
-                mid_marker = b'======='
+                mid_marker = b"======="
             if end_marker is None:
-                end_marker = b'>>>>>>>'
-            space = b' '
+                end_marker = b">>>>>>>"
+            space = b" "
         else:
             if start_marker is None:
-                start_marker = '<<<<<<<'
+                start_marker = "<<<<<<<"
             if mid_marker is None:
-                mid_marker = '======='
+                mid_marker = "======="
             if end_marker is None:
-                end_marker = '>>>>>>>'
+                end_marker = ">>>>>>>"
             if len(self.a) > 0:
-                if self.a[0].endswith('\r\n'):
-                    newline = '\r\n'
-                elif self.a[0].endswith('\r'):
-                    newline = '\r'
+                if self.a[0].endswith("\r\n"):
+                    newline = "\r\n"
+                elif self.a[0].endswith("\r"):
+                    newline = "\r"
                 else:
-                    newline = '\n'
+                    newline = "\n"
             else:
-                newline = '\n'
-            space = ' '
+                newline = "\n"
+            space = " "
         if name_a:
             start_marker = start_marker + space + name_a
         if name_b:
@@ -155,16 +159,16 @@ class Merge3:
             merge_regions = self.reprocess_merge_regions(merge_regions)
         for t in merge_regions:
             what = t[0]
-            if what == 'unchanged':
+            if what == "unchanged":
                 for i in range(t[1], t[2]):
                     yield self.base[i]
-            elif what == 'a' or what == 'same':
+            elif what == "a" or what == "same":
                 for i in range(t[1], t[2]):
                     yield self.a[i]
-            elif what == 'b':
+            elif what == "b":
                 for i in range(t[1], t[2]):
                     yield self.b[i]
-            elif what == 'conflict':
+            elif what == "conflict":
                 yield start_marker + newline
                 for i in range(t[3], t[4]):
                     yield self.a[i]
@@ -185,34 +189,34 @@ class Merge3:
         Most useful for debugging merge.
         """
         if self._uses_bytes():
-            UNCHANGED = b'u'
-            SEP = b' | '
-            CONFLICT_START = b'<<<<\n'
-            CONFLICT_MID = b'----\n'
-            CONFLICT_END = b'>>>>\n'
-            WIN_A = b'a'
-            WIN_B = b'b'
+            UNCHANGED = b"u"
+            SEP = b" | "
+            CONFLICT_START = b"<<<<\n"
+            CONFLICT_MID = b"----\n"
+            CONFLICT_END = b">>>>\n"
+            WIN_A = b"a"
+            WIN_B = b"b"
         else:
-            UNCHANGED = 'u'
-            SEP = ' | '
-            CONFLICT_START = '<<<<\n'
-            CONFLICT_MID = '----\n'
-            CONFLICT_END = '>>>>\n'
-            WIN_A = 'a'
-            WIN_B = 'b'
+            UNCHANGED = "u"
+            SEP = " | "
+            CONFLICT_START = "<<<<\n"
+            CONFLICT_MID = "----\n"
+            CONFLICT_END = ">>>>\n"
+            WIN_A = "a"
+            WIN_B = "b"
 
         for t in self.merge_regions():
             what = t[0]
-            if what == 'unchanged':
+            if what == "unchanged":
                 for i in range(t[1], t[2]):
                     yield UNCHANGED + SEP + self.base[i]
-            elif what == 'a' or what == 'same':
+            elif what == "a" or what == "same":
                 for i in range(t[1], t[2]):
                     yield WIN_A.lower() + SEP + self.a[i]
-            elif what == 'b':
+            elif what == "b":
                 for i in range(t[1], t[2]):
                     yield WIN_B.lower() + SEP + self.b[i]
-            elif what == 'conflict':
+            elif what == "conflict":
                 yield CONFLICT_START
                 for i in range(t[3], t[4]):
                     yield WIN_A.upper() + SEP + self.a[i]
@@ -243,17 +247,19 @@ class Merge3:
         """
         for t in self.merge_regions():
             what = t[0]
-            if what == 'unchanged':
-                yield what, self.base[t[1]:t[2]]
-            elif what == 'a' or what == 'same':
-                yield what, self.a[t[1]:t[2]]
-            elif what == 'b':
-                yield what, self.b[t[1]:t[2]]
-            elif what == 'conflict':
-                yield (what,
-                       self.base[t[1]:t[2]],
-                       self.a[t[3]:t[4]],
-                       self.b[t[5]:t[6]])
+            if what == "unchanged":
+                yield what, self.base[t[1] : t[2]]
+            elif what == "a" or what == "same":
+                yield what, self.a[t[1] : t[2]]
+            elif what == "b":
+                yield what, self.b[t[1] : t[2]]
+            elif what == "conflict":
+                yield (
+                    what,
+                    self.base[t[1] : t[2]],
+                    self.a[t[3] : t[4]],
+                    self.b[t[5] : t[6]],
+                )
             else:
                 raise ValueError(what)
 
@@ -286,8 +292,7 @@ class Merge3:
         # section a[0:ia] has been disposed of, etc
         iz = ia = ib = 0
 
-        for (zmatch, zend, amatch, aend, bmatch,
-             bend) in self.find_sync_regions():
+        for zmatch, zend, amatch, aend, bmatch, bend in self.find_sync_regions():
             matchlen = zend - zmatch
             # invariants:
             #   matchlen >= 0
@@ -303,31 +308,26 @@ class Merge3:
 
             if len_a or len_b:
                 # try to avoid actually slicing the lists
-                same = compare_range(self.a, ia, amatch,
-                                     self.b, ib, bmatch)
+                same = compare_range(self.a, ia, amatch, self.b, ib, bmatch)
 
                 if same:
-                    yield 'same', ia, amatch
+                    yield "same", ia, amatch
                 else:
-                    equal_a = compare_range(self.a, ia, amatch,
-                                            self.base, iz, zmatch)
-                    equal_b = compare_range(self.b, ib, bmatch,
-                                            self.base, iz, zmatch)
+                    equal_a = compare_range(self.a, ia, amatch, self.base, iz, zmatch)
+                    equal_b = compare_range(self.b, ib, bmatch, self.base, iz, zmatch)
                     if equal_a and not equal_b:
-                        yield 'b', ib, bmatch
+                        yield "b", ib, bmatch
                     elif equal_b and not equal_a:
-                        yield 'a', ia, amatch
+                        yield "a", ia, amatch
                     elif not equal_a and not equal_b:
                         if self.is_cherrypick:
                             yield from self._refine_cherrypick_conflict(
-                                iz, zmatch, ia, amatch,
-                                ib, bmatch)
+                                iz, zmatch, ia, amatch, ib, bmatch
+                            )
                         else:
-                            yield (
-                                'conflict', iz, zmatch, ia, amatch, ib, bmatch)
+                            yield ("conflict", iz, zmatch, ia, amatch, ib, bmatch)
                     else:
-                        raise AssertionError(
-                            "can't handle a=b=base but unmatched")
+                        raise AssertionError("can't handle a=b=base but unmatched")
 
                 ia = amatch
                 ib = bmatch
@@ -342,17 +342,17 @@ class Merge3:
                 # assert ib == bmatch
                 # assert iz == zmatch
 
-                yield 'unchanged', zmatch, zend
+                yield "unchanged", zmatch, zend
                 iz = zend
                 ia = aend
                 ib = bend
 
-    def _refine_cherrypick_conflict(self, zstart, zend, astart, aend, bstart,
-                                    bend):
+    def _refine_cherrypick_conflict(self, zstart, zend, astart, aend, bstart, bend):
         """When cherrypicking b => a, ignore matches with b and base."""
         # Do not emit regions which match, only regions which do not match
         matcher = self.sequence_matcher(
-            None, self.base[zstart:zend], self.b[bstart:bend])
+            None, self.base[zstart:zend], self.b[bstart:bend]
+        )
         matches = matcher.get_matching_blocks()
         last_base_idx = 0
         last_b_idx = 0
@@ -364,28 +364,54 @@ class Merge3:
                 pass
             else:
                 if yielded_a:
-                    yield ('conflict',
-                           zstart + last_base_idx, zstart + base_idx,
-                           aend, aend, bstart + last_b_idx, bstart + b_idx)
+                    yield (
+                        "conflict",
+                        zstart + last_base_idx,
+                        zstart + base_idx,
+                        aend,
+                        aend,
+                        bstart + last_b_idx,
+                        bstart + b_idx,
+                    )
                 else:
                     # The first conflict gets the a-range
                     yielded_a = True
                     yield (
-                        'conflict', zstart + last_base_idx, zstart + base_idx,
-                        astart, aend, bstart + last_b_idx, bstart + b_idx)
+                        "conflict",
+                        zstart + last_base_idx,
+                        zstart + base_idx,
+                        astart,
+                        aend,
+                        bstart + last_b_idx,
+                        bstart + b_idx,
+                    )
             last_base_idx = base_idx + match_len
             last_b_idx = b_idx + match_len
         if last_base_idx != zend - zstart or last_b_idx != bend - bstart:
             if yielded_a:
-                yield ('conflict', zstart + last_base_idx, zstart + base_idx,
-                       aend, aend, bstart + last_b_idx, bstart + b_idx)
+                yield (
+                    "conflict",
+                    zstart + last_base_idx,
+                    zstart + base_idx,
+                    aend,
+                    aend,
+                    bstart + last_b_idx,
+                    bstart + b_idx,
+                )
             else:
                 # The first conflict gets the a-range
                 yielded_a = True
-                yield ('conflict', zstart + last_base_idx, zstart + base_idx,
-                       astart, aend, bstart + last_b_idx, bstart + b_idx)
+                yield (
+                    "conflict",
+                    zstart + last_base_idx,
+                    zstart + base_idx,
+                    astart,
+                    aend,
+                    bstart + last_b_idx,
+                    bstart + b_idx,
+                )
         if not yielded_a:
-            yield ('conflict', zstart, zend, astart, aend, bstart, bend)
+            yield ("conflict", zstart, zend, astart, aend, bstart, bend)
 
     def reprocess_merge_regions(self, merge_regions):
         """Where there are conflict regions, remove the agreed lines.
@@ -401,17 +427,17 @@ class Merge3:
             a_region = self.a[ia:amatch]
             b_region = self.b[ib:bmatch]
             matches = self.sequence_matcher(
-                None, a_region, b_region).get_matching_blocks()
+                None, a_region, b_region
+            ).get_matching_blocks()
             next_a = ia
             next_b = ib
             for region_ia, region_ib, region_len in matches[:-1]:
                 region_ia += ia
                 region_ib += ib
-                reg = self.mismatch_region(next_a, region_ia, next_b,
-                                           region_ib)
+                reg = self.mismatch_region(next_a, region_ia, next_b, region_ib)
                 if reg is not None:
                     yield reg
-                yield 'same', region_ia, region_len + region_ia
+                yield "same", region_ia, region_len + region_ia
                 next_a = region_ia + region_len
                 next_b = region_ib + region_len
             reg = self.mismatch_region(next_a, amatch, next_b, bmatch)
@@ -421,7 +447,7 @@ class Merge3:
     @staticmethod
     def mismatch_region(next_a, region_ia, next_b, region_ib):
         if next_a < region_ia or next_b < region_ib:
-            return 'conflict', None, None, next_a, region_ia, next_b, region_ib
+            return "conflict", None, None, next_a, region_ia, next_b, region_ib
 
     def find_sync_regions(self):
         """Return list of sync regions, where both descendents match the base.
@@ -430,10 +456,8 @@ class Merge3:
         always a zero-length sync region at the end of all the files.
         """
         ia = ib = 0
-        amatches = self.sequence_matcher(
-            None, self.base, self.a).get_matching_blocks()
-        bmatches = self.sequence_matcher(
-            None, self.base, self.b).get_matching_blocks()
+        amatches = self.sequence_matcher(None, self.base, self.a).get_matching_blocks()
+        bmatches = self.sequence_matcher(None, self.base, self.b).get_matching_blocks()
         len_a = len(amatches)
         len_b = len(bmatches)
 
@@ -467,9 +491,7 @@ class Merge3:
                 #       (self.base[intbase:intend], self.a[asub:aend])
                 # assert self.base[intbase:intend] == self.b[bsub:bend]
 
-                sl.append((intbase, intend,
-                           asub, aend,
-                           bsub, bend))
+                sl.append((intbase, intend, asub, aend, bsub, bend))
             # advance whichever one ends first in the base text
             if (abase + alen) < (bbase + blen):
                 ia += 1
@@ -485,10 +507,8 @@ class Merge3:
 
     def find_unconflicted(self):
         """Return a list of ranges in base that are not conflicted."""
-        am = self.sequence_matcher(
-            None, self.base, self.a).get_matching_blocks()
-        bm = self.sequence_matcher(
-            None, self.base, self.b).get_matching_blocks()
+        am = self.sequence_matcher(None, self.base, self.a).get_matching_blocks()
+        bm = self.sequence_matcher(None, self.base, self.b).get_matching_blocks()
 
         unc = []
 
