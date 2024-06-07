@@ -23,6 +23,7 @@ jobs:
         run: |
           pip install -U ".[dev]"
           python -m ruff check .
+          python -m ruff format --check .
       - name: Test suite run
         run: |
           python -m unittest test_merge3
