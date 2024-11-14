@@ -1,0 +1,8 @@
+name = "merge3"
+tag-name = "v$VERSION"
+tarball-location = []
+release-timeout = 5
+
+[[update_version]]
+path = "merge3/__init__.py"
+new-line = "__version__ = $TUPLED_VERSION"
