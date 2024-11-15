@@ -117,7 +117,7 @@ class TestMerge3(unittest.TestCase):
     def test_front_insert(self):
         m3 = merge3.Merge3([b"zz"], [b"aaa", b"bbb", b"zz"], [b"zz"])
 
-        # todo: should use a sentinal at end as from get_matching_blocks
+        # todo: should use a sentinel at end as from get_matching_blocks
         # to match without zz
         self.assertEqual(
             list(m3.find_sync_regions()),
@@ -135,7 +135,7 @@ class TestMerge3(unittest.TestCase):
 
     def test_null_insert(self):
         m3 = merge3.Merge3([], ["aaa", "bbb"], [])
-        # todo: should use a sentinal at end as from get_matching_blocks
+        # todo: should use a sentinel at end as from get_matching_blocks
         # to match without zz
         self.assertEqual(list(m3.find_sync_regions()), [(0, 0, 2, 2, 0, 0)])
 
