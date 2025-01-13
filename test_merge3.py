@@ -438,9 +438,7 @@ bbb
         )
         m_lines = m3.merge_lines("OTHER", "THIS")
         self.assertEqual(
-            "<<<<<<< OTHER\r\nc\r\n=======\r\nb\r\n" ">>>>>>> THIS\r\n".splitlines(
-                True
-            ),
+            "<<<<<<< OTHER\r\nc\r\n=======\r\nb\r\n>>>>>>> THIS\r\n".splitlines(True),
             list(m_lines),
         )
 
@@ -455,7 +453,7 @@ bbb
         )
         m_lines = m3.merge_lines("OTHER", "THIS")
         self.assertEqual(
-            "<<<<<<< OTHER\rc\r=======\rb\r" ">>>>>>> THIS\r".splitlines(True),
+            "<<<<<<< OTHER\rc\r=======\rb\r>>>>>>> THIS\r".splitlines(True),
             list(m_lines),
         )
 
@@ -496,17 +494,7 @@ bbb
         )
         m_lines = m3.merge_lines()
         self.assertEqual(
-            "a\n"
-            "b\n"
-            "<<<<<<<\n"
-            "q\n"
-            "=======\n"
-            "f\n"
-            ">>>>>>>\n"
-            "<<<<<<<\n"
-            "=======\n"
-            "g\n"
-            ">>>>>>>\n",
+            "a\nb\n<<<<<<<\nq\n=======\nf\n>>>>>>>\n<<<<<<<\n=======\ng\n>>>>>>>\n",
             "".join(m_lines),
         )
 
