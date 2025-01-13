@@ -33,7 +33,7 @@ GitHub = "https://github.com/breezy-team/merge3"
 
 [project.optional-dependencies]
 "dev" = [
-    "ruff==0.8.6"
+    "ruff==0.9.1"
 ]
 
 [tool.setuptools]
@@ -63,7 +63,6 @@ select = [
 ]
 ignore = [
     "ANN001",
-    "ANN101",
     "ANN201",
     "ANN202",
     "ANN205",
