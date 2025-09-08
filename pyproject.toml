@@ -1,15 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.2"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "merge3"
 description = "Python implementation of 3-way merge"
 maintainers = [{name = "Breezy Developers", email = "team@breezy-vcs.org"}]
-license = {text = "GNU GPLv2 or later"}
+license = "GPL-2.0-or-later"
 classifiers = [
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
