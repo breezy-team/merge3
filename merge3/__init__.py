@@ -34,7 +34,7 @@ from typing import (
     cast,
 )
 
-__version__ = (0, 0, 15)
+__version__ = (0, 0, 16)
 
 # Type variables for more flexible typing
 S = TypeVar("S")  # For sequence elements in compare_range
