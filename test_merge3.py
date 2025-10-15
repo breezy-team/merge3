@@ -18,13 +18,14 @@
 import struct
 import unittest
 from io import StringIO
+from typing import List, Union
 
 import merge3
 
 int2byte = struct.Struct(">B").pack
 
 
-def split_lines(t):
+def split_lines(t: str) -> List[str]:
     return StringIO(t).readlines()
 
 
@@ -100,7 +101,7 @@ MERGED_RESULT = split_lines(
 
 
 class TestMerge3(unittest.TestCase):
-    def test_no_changes(self):
+    def test_no_changes(self) -> None:
         """No conflicts because nothing changed."""
         m3 = merge3.Merge3(["aaa", "bbb"], ["aaa", "bbb"], ["aaa", "bbb"])
 
@@ -114,7 +115,7 @@ class TestMerge3(unittest.TestCase):
 
         self.assertEqual(list(m3.merge_groups()), [("unchanged", ["aaa", "bbb"])])
 
-    def test_front_insert(self):
+    def test_front_insert(self) -> None:
         m3 = merge3.Merge3([b"zz"], [b"aaa", b"bbb", b"zz"], [b"zz"])
 
         # todo: should use a sentinel at end as from get_matching_blocks
@@ -133,7 +134,7 @@ class TestMerge3(unittest.TestCase):
             list(m3.merge_groups()), [("a", [b"aaa", b"bbb"]), ("unchanged", [b"zz"])]
         )
 
-    def test_null_insert(self):
+    def test_null_insert(self) -> None:
         m3 = merge3.Merge3([], ["aaa", "bbb"], [])
         # todo: should use a sentinel at end as from get_matching_blocks
         # to match without zz
@@ -143,7 +144,7 @@ class TestMerge3(unittest.TestCase):
 
         self.assertEqual(list(m3.merge_lines()), ["aaa", "bbb"])
 
-    def test_no_conflicts(self):
+    def test_no_conflicts(self) -> None:
         """No conflicts because only one side changed."""
         m3 = merge3.Merge3(["aaa", "bbb"], ["aaa", "111", "bbb"], ["aaa", "bbb"])
 
@@ -167,28 +168,28 @@ class TestMerge3(unittest.TestCase):
             ],
         )
 
-    def test_append_a(self):
+    def test_append_a(self) -> None:
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "bbb\n", "222\n"], ["aaa\n", "bbb\n"]
         )
 
         self.assertEqual("".join(m3.merge_lines()), "aaa\nbbb\n222\n")
 
-    def test_append_b(self):
+    def test_append_b(self) -> None:
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "bbb\n"], ["aaa\n", "bbb\n", "222\n"]
         )
 
         self.assertEqual("".join(m3.merge_lines()), "aaa\nbbb\n222\n")
 
-    def test_append_agreement(self):
+    def test_append_agreement(self) -> None:
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "bbb\n", "222\n"], ["aaa\n", "bbb\n", "222\n"]
         )
 
         self.assertEqual("".join(m3.merge_lines()), "aaa\nbbb\n222\n")
 
-    def test_append_clash(self):
+    def test_append_clash(self) -> None:
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "bbb\n", "222\n"], ["aaa\n", "bbb\n", "333\n"]
         )
@@ -209,7 +210,7 @@ bbb
 """,
         )
 
-    def test_insert_agreement(self):
+    def test_insert_agreement(self) -> None:
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "222\n", "bbb\n"], ["aaa\n", "222\n", "bbb\n"]
         )
@@ -219,7 +220,7 @@ bbb
         )
         self.assertEqual("".join(ml), "aaa\n222\nbbb\n")
 
-    def test_insert_clash(self):
+    def test_insert_clash(self) -> None:
         """Both try to insert lines in the same place."""
         m3 = merge3.Merge3(
             ["aaa\n", "bbb\n"], ["aaa\n", "111\n", "bbb\n"], ["aaa\n", "222\n", "bbb\n"]
@@ -266,7 +267,7 @@ bbb
 """,
         )
 
-    def test_replace_clash(self):
+    def test_replace_clash(self) -> None:
         """Both try to insert lines in the same place."""
         m3 = merge3.Merge3(
             ["aaa", "000", "bbb"], ["aaa", "111", "bbb"], ["aaa", "222", "bbb"]
@@ -283,7 +284,7 @@ bbb
             ],
         )
 
-    def test_replace_multi(self):
+    def test_replace_multi(self) -> None:
         """Replacement with regions of different size."""
         m3 = merge3.Merge3(
             [b"aaa", b"000", b"000", b"bbb"],
@@ -302,13 +303,13 @@ bbb
             ],
         )
 
-    def test_merge_poem(self):
+    def test_merge_poem(self) -> None:
         """Test case from diff3 manual."""
         m3 = merge3.Merge3(TZU, LAO, TAO)
         ml = list(m3.merge_lines("LAO", "TAO"))
         self.assertEqual(ml, MERGED_RESULT)
 
-    def test_merge_poem_bytes(self):
+    def test_merge_poem_bytes(self) -> None:
         """Test case from diff3 manual."""
         m3 = merge3.Merge3(
             [line.encode() for line in TZU],
@@ -318,7 +319,7 @@ bbb
         ml = list(m3.merge_lines(b"LAO", b"TAO"))
         self.assertEqual(ml, [line.encode() for line in MERGED_RESULT])
 
-    def test_minimal_conflicts_common(self):
+    def test_minimal_conflicts_common(self) -> None:
         """Reprocessing."""
         base_text = ("a\n" * 20).splitlines(True)
         this_text = ("a\n" * 10 + "b\n" * 10).splitlines(True)
@@ -338,7 +339,7 @@ bbb
         )
         self.assertEqual(optimal_text, merged_text)
 
-    def test_cherrypick(self):
+    def test_cherrypick(self) -> None:
         base_text = "ba\nb\n"
         this_text = "ba\n"
         other_text = "a\nb\nc\n"
@@ -353,7 +354,7 @@ bbb
 
         self.assertEqual(list(m3.find_sync_regions()), [(2, 2, 3, 3, 1, 1)])
 
-    def test_minimal_conflicts_common_with_patiencediff(self):
+    def test_minimal_conflicts_common_with_patiencediff(self) -> None:
         """Reprocessing."""
         try:
             import patiencediff
@@ -380,8 +381,8 @@ bbb
         )
         self.assertEqual(optimal_text, merged_text)
 
-    def test_minimal_conflicts_unique(self):
-        def add_newline(s):
+    def test_minimal_conflicts_unique(self) -> None:
+        def add_newline(s: Union[str, bytes]) -> Union[str, bytes]:
             """Add a newline to each entry in the string."""
             return [(x + "\n") for x in s]
 
@@ -399,8 +400,8 @@ bbb
         )
         self.assertEqual(optimal_text, merged_text)
 
-    def test_minimal_conflicts_nonunique(self):
-        def add_newline(s):
+    def test_minimal_conflicts_nonunique(self) -> None:
+        def add_newline(s: Union[str, bytes]) -> Union[str, bytes]:
             """Add a newline to each entry in the string."""
             return [(x + "\n") for x in s]
 
@@ -418,7 +419,7 @@ bbb
         )
         self.assertEqual(optimal_text, merged_text)
 
-    def test_reprocess_and_base(self):
+    def test_reprocess_and_base(self) -> None:
         """Reprocessing and showing base breaks correctly."""
         base_text = ("a\n" * 20).splitlines(True)
         this_text = ("a\n" * 10 + "b\n" * 10).splitlines(True)
@@ -427,7 +428,7 @@ bbb
         m_lines = m3.merge_lines("OTHER", "THIS", reprocess=True, base_marker="|||||||")
         self.assertRaises(merge3.CantReprocessAndShowBase, list, m_lines)
 
-    def test_dos_text(self):
+    def test_dos_text(self) -> None:
         base_text = "a\r\n"
         this_text = "b\r\n"
         other_text = "c\r\n"
@@ -442,7 +443,7 @@ bbb
             list(m_lines),
         )
 
-    def test_mac_text(self):
+    def test_mac_text(self) -> None:
         base_text = "a\r"
         this_text = "b\r"
         other_text = "c\r"
@@ -457,7 +458,7 @@ bbb
             list(m_lines),
         )
 
-    def test_merge3_cherrypick(self):
+    def test_merge3_cherrypick(self) -> None:
         base_text = "a\nb\n"
         this_text = "a\n"
         other_text = "a\nb\nc\n"
@@ -481,7 +482,7 @@ bbb
         m_lines = m3.merge_lines()
         self.assertEqual("a\n<<<<<<<\nb\nc\n=======\n>>>>>>>\n", "".join(m_lines))
 
-    def test_merge3_cherrypick_w_mixed(self):
+    def test_merge3_cherrypick_w_mixed(self) -> None:
         base_text = "a\nb\nc\nd\ne\n"
         this_text = "a\nb\nq\n"
         other_text = "a\nb\nc\nd\nf\ne\ng\n"
@@ -498,7 +499,7 @@ bbb
             "".join(m_lines),
         )
 
-    def test_allow_objects(self):
+    def test_allow_objects(self) -> None:
         """Objects other than strs may be used with Merge3.
 
         merge_groups and merge_regions work with non-str input.  Methods that

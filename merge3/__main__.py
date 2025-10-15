@@ -14,10 +14,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import sys
+from typing import List, Optional
+
 from . import Merge3
 
 
-def main(argv=None):
+def main(argv: Optional[List[str]] = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -39,9 +42,8 @@ def main(argv=None):
                 name_a=args.mine.name, name_b=args.other.name, name_base=args.base.name
             )
         )
+    return 0
 
 
 if __name__ == "__main__":
-    import sys
-
     sys.exit(main(sys.argv[1:]))

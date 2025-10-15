@@ -19,15 +19,57 @@
 # mbp: "you know that thing where cvs gives you conflict markers?"
 # s: "i hate that."
 
+from typing import (
+    Callable,
+    Generic,
+    Iterator,
+    List,
+    Literal,
+    Optional,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 __version__ = (0, 0, 15)
+
+# Type variables for more flexible typing
+S = TypeVar("S")  # For sequence elements in compare_range
+S_co = TypeVar("S_co", covariant=True)  # Covariant type variable for protocols
+LineType = TypeVar("LineType", str, bytes)  # Alias for clarity
+
+# Bounded type variable for hashable sequence elements
+# For elements that need to be hashable
+HashableT = TypeVar("HashableT", bound=Union[str, bytes])
+
+
+# Protocol for sequence matchers (like difflib.SequenceMatcher)
+class SequenceMatcherProtocol(Protocol[S_co]):
+    """Protocol for sequence matcher implementations."""
+
+    def __init__(
+        self,
+        isjunk: Optional[Callable[[S_co], bool]] = None,
+        a: Sequence[S_co] = "",  # type: ignore[assignment]
+        b: Sequence[S_co] = "",  # type: ignore[assignment]
+        autojunk: bool = True,
+    ) -> None:
+        """Initialize the sequence matcher."""
+        ...
+
+    def get_matching_blocks(self) -> List[Tuple[int, int, int]]:
+        """Return list of matching blocks as 3-tuples (i, j, n)."""
+        ...
 
 
 class CantReprocessAndShowBase(Exception):
     """Can't reprocess and show base."""
 
 
-def intersect(ra, rb):
+def intersect(ra: Tuple[int, int], rb: Tuple[int, int]) -> Optional[Tuple[int, int]]:
     """Given two ranges return the range where they intersect or None.
 
     >>> intersect((0, 10), (0, 6))
@@ -49,7 +91,14 @@ def intersect(ra, rb):
         return None
 
 
-def compare_range(a, astart, aend, b, bstart, bend):
+def compare_range(
+    a: Sequence[S],
+    astart: int,
+    aend: int,
+    b: Sequence[S],
+    bstart: int,
+    bend: int,
+) -> bool:
     """Compare a[astart:aend] == b[bstart:bend], without slicing."""
     if (aend - astart) != (bend - bstart):
         return False
@@ -60,7 +109,41 @@ def compare_range(a, astart, aend, b, bstart, bend):
         return True
 
 
-class Merge3:
+T = TypeVar("T", str, bytes)
+
+# Type aliases for common return types
+# Region type literals
+RegionType = Literal["unchanged", "same", "a", "b", "conflict"]
+
+# More specific region types
+UnchangedRegion = Tuple[Literal["unchanged"], int, int]
+SameRegion = Tuple[Literal["same"], int, int]
+ARegion = Tuple[Literal["a"], int, int]
+BRegion = Tuple[Literal["b"], int, int]
+SimpleRegion = Union[UnchangedRegion, SameRegion, ARegion, BRegion]
+
+# Conflict regions: (type, base_start, base_end, a_start, a_end, b_start, b_end)
+ConflictRegion = Tuple[Literal["conflict"], int, int, int, int, int, int]
+# Special conflict region from reprocess with None base indices
+ReprocessConflictRegion = Tuple[Literal["conflict"], None, None, int, int, int, int]
+MergeRegion = Union[UnchangedRegion, SameRegion, ARegion, BRegion, ConflictRegion]
+# ExtendedMergeRegion keeps simple regions separate from
+# conflict regions that might have None
+ExtendedMergeRegion = Union[
+    UnchangedRegion,
+    SameRegion,
+    ARegion,
+    BRegion,
+    ConflictRegion,
+    ReprocessConflictRegion,
+]
+
+# Sync region: (base_start, base_end, a_start, a_end, b_start, b_end)
+SyncRegion = Tuple[int, int, int, int, int, int]
+UnconflictedRange = Tuple[int, int]
+
+
+class Merge3(Generic[T]):
     """3-way merge of texts.
 
     Given BASE, OTHER, THIS, tries to produce a combined text
@@ -69,7 +152,12 @@ class Merge3:
     """
 
     def __init__(
-        self, base, a, b, is_cherrypick: bool = False, sequence_matcher=None
+        self,
+        base: Sequence[T],
+        a: Sequence[T],
+        b: Sequence[T],
+        is_cherrypick: bool = False,
+        sequence_matcher: Optional[type[SequenceMatcherProtocol[T]]] = None,
     ) -> None:
         """Constructor.
 
@@ -84,14 +172,14 @@ class Merge3:
         if sequence_matcher is None:
             import difflib
 
-            sequence_matcher = difflib.SequenceMatcher
-        self.base = base
-        self.a = a
-        self.b = b
+            sequence_matcher = difflib.SequenceMatcher  # type: ignore[assignment]
+        self.base: Sequence[T] = base
+        self.a: Sequence[T] = a
+        self.b: Sequence[T] = b
         self.is_cherrypick = is_cherrypick
-        self.sequence_matcher = sequence_matcher
+        self.sequence_matcher: type[SequenceMatcherProtocol[T]] = sequence_matcher  # type: ignore[assignment]
 
-    def _uses_bytes(self):
+    def _uses_bytes(self) -> bool:
         if len(self.a) > 0:
             return isinstance(self.a[0], bytes)
         elif len(self.base) > 0:
@@ -103,108 +191,172 @@ class Merge3:
 
     def merge_lines(
         self,
-        name_a=None,
-        name_b=None,
-        name_base=None,
-        start_marker=None,
-        mid_marker=None,
-        end_marker=None,
-        base_marker=None,
-        reprocess=False,
-    ):
+        name_a: Optional[T] = None,
+        name_b: Optional[T] = None,
+        name_base: Optional[T] = None,
+        start_marker: Optional[T] = None,
+        mid_marker: Optional[T] = None,
+        end_marker: Optional[T] = None,
+        base_marker: Optional[T] = None,
+        reprocess: bool = False,
+    ) -> Iterator[T]:
         """Return merge in cvs-like form."""
         if base_marker and reprocess:
             raise CantReprocessAndShowBase()
+
+        newline: Union[str, bytes]
+        space: Union[str, bytes]
+
+        # Use local variables with proper types
+        local_start: Union[str, bytes]
+        local_mid: Union[str, bytes]
+        local_end: Union[str, bytes]
+
         if self._uses_bytes():
+            # Assert we're working with bytes
+            assert not self.a or isinstance(self.a[0], bytes)
+            assert not self.base or isinstance(self.base[0], bytes)
+            assert not self.b or isinstance(self.b[0], bytes)
+
             if len(self.a) > 0:
-                if self.a[0].endswith(b"\r\n"):
+                first_elem = self.a[0]
+                assert isinstance(first_elem, bytes)
+                if first_elem.endswith(b"\r\n"):
                     newline = b"\r\n"
-                elif self.a[0].endswith(b"\r"):
+                elif first_elem.endswith(b"\r"):
                     newline = b"\r"
                 else:
                     newline = b"\n"
             else:
                 newline = b"\n"
-            if start_marker is None:
-                start_marker = b"<<<<<<<"
-            if mid_marker is None:
-                mid_marker = b"======="
-            if end_marker is None:
-                end_marker = b">>>>>>>"
+
+            local_start = start_marker if start_marker is not None else b"<<<<<<<"
+            local_mid = mid_marker if mid_marker is not None else b"======="
+            local_end = end_marker if end_marker is not None else b">>>>>>>"
             space = b" "
+
+            # Assert types for concatenation
+            assert isinstance(local_start, bytes)
+            assert isinstance(local_mid, bytes)
+            assert isinstance(local_end, bytes)
+            start_marker = cast(Optional[T], local_start)
+            mid_marker = cast(Optional[T], local_mid)
+            end_marker = cast(Optional[T], local_end)
         else:
-            if start_marker is None:
-                start_marker = "<<<<<<<"
-            if mid_marker is None:
-                mid_marker = "======="
-            if end_marker is None:
-                end_marker = ">>>>>>>"
             if len(self.a) > 0:
-                if self.a[0].endswith("\r\n"):
+                first_elem = self.a[0]
+                assert isinstance(first_elem, str)
+                if first_elem.endswith("\r\n"):
                     newline = "\r\n"
-                elif self.a[0].endswith("\r"):
+                elif first_elem.endswith("\r"):
                     newline = "\r"
                 else:
                     newline = "\n"
             else:
                 newline = "\n"
+
+            local_start = start_marker if start_marker is not None else "<<<<<<<"
+            local_mid = mid_marker if mid_marker is not None else "======="
+            local_end = end_marker if end_marker is not None else ">>>>>>>"
             space = " "
+
+            # Assert types for concatenation
+            assert isinstance(local_start, str)
+            assert isinstance(local_mid, str)
+            assert isinstance(local_end, str)
+            start_marker = cast(Optional[T], local_start)
+            mid_marker = cast(Optional[T], local_mid)
+            end_marker = cast(Optional[T], local_end)
         if name_a:
-            start_marker = start_marker + space + name_a
+            assert start_marker is not None
+            assert isinstance(start_marker, type(space))
+            assert isinstance(name_a, type(space))
+            start_marker = start_marker + space + name_a  # type: ignore[operator]
         if name_b:
-            end_marker = end_marker + space + name_b
+            assert end_marker is not None
+            assert isinstance(end_marker, type(space))
+            assert isinstance(name_b, type(space))
+            end_marker = end_marker + space + name_b  # type: ignore[operator]
         if name_base and base_marker:
-            base_marker = base_marker + space + name_base
-        merge_regions = self.merge_regions()
+            assert isinstance(base_marker, type(space))
+            assert isinstance(name_base, type(space))
+            base_marker = base_marker + space + name_base  # type: ignore[operator]
+        merge_regions: Iterator[ExtendedMergeRegion]
         if reprocess is True:
-            merge_regions = self.reprocess_merge_regions(merge_regions)
+            merge_regions = self.reprocess_merge_regions(self.merge_regions())
+        else:
+            merge_regions = self.merge_regions()
         for t in merge_regions:
             what = t[0]
             if what == "unchanged":
+                assert isinstance(t[1], int) and isinstance(t[2], int)
                 for i in range(t[1], t[2]):
                     yield self.base[i]
             elif what == "a" or what == "same":
+                assert isinstance(t[1], int) and isinstance(t[2], int)
                 for i in range(t[1], t[2]):
                     yield self.a[i]
             elif what == "b":
+                assert isinstance(t[1], int) and isinstance(t[2], int)
                 for i in range(t[1], t[2]):
                     yield self.b[i]
             elif what == "conflict":
+                # Unpack the conflict tuple properly
+                assert len(t) == 7  # conflict tuple has 7 elements
+                _, iz, zmatch, ia, amatch, ib, bmatch = t
+                assert start_marker is not None
+                assert isinstance(start_marker, type(newline))
+                assert isinstance(newline, type(start_marker))
                 yield start_marker + newline
-                for i in range(t[3], t[4]):
+                for i in range(ia, amatch):
                     yield self.a[i]
                 if base_marker is not None:
+                    assert isinstance(base_marker, type(newline))
                     yield base_marker + newline
-                    for i in range(t[1], t[2]):
+                    assert iz is not None
+                    assert zmatch is not None
+                    for i in range(iz, zmatch):
                         yield self.base[i]
+                assert mid_marker is not None
+                assert isinstance(mid_marker, type(newline))
                 yield mid_marker + newline
-                for i in range(t[5], t[6]):
+                for i in range(ib, bmatch):
                     yield self.b[i]
+                assert end_marker is not None
+                assert isinstance(end_marker, type(newline))
                 yield end_marker + newline
             else:
                 raise ValueError(what)
 
-    def merge_annotated(self):
+    def merge_annotated(self) -> Iterator[T]:
         """Return merge with conflicts, showing origin of lines.
 
         Most useful for debugging merge.
         """
+        UNCHANGED: T
+        SEP: T
+        CONFLICT_START: T
+        CONFLICT_MID: T
+        CONFLICT_END: T
+        WIN_A: T
+        WIN_B: T
+
         if self._uses_bytes():
-            UNCHANGED = b"u"
-            SEP = b" | "
-            CONFLICT_START = b"<<<<\n"
-            CONFLICT_MID = b"----\n"
-            CONFLICT_END = b">>>>\n"
-            WIN_A = b"a"
-            WIN_B = b"b"
+            UNCHANGED = b"u"  # type: ignore[assignment]
+            SEP = b" | "  # type: ignore[assignment]
+            CONFLICT_START = b"<<<<\n"  # type: ignore[assignment]
+            CONFLICT_MID = b"----\n"  # type: ignore[assignment]
+            CONFLICT_END = b">>>>\n"  # type: ignore[assignment]
+            WIN_A = b"a"  # type: ignore[assignment]
+            WIN_B = b"b"  # type: ignore[assignment]
         else:
-            UNCHANGED = "u"
-            SEP = " | "
-            CONFLICT_START = "<<<<\n"
-            CONFLICT_MID = "----\n"
-            CONFLICT_END = ">>>>\n"
-            WIN_A = "a"
-            WIN_B = "b"
+            UNCHANGED = "u"  # type: ignore[assignment]
+            SEP = " | "  # type: ignore[assignment]
+            CONFLICT_START = "<<<<\n"  # type: ignore[assignment]
+            CONFLICT_MID = "----\n"  # type: ignore[assignment]
+            CONFLICT_END = ">>>>\n"  # type: ignore[assignment]
+            WIN_A = "a"  # type: ignore[assignment]
+            WIN_B = "b"  # type: ignore[assignment]
 
         for t in self.merge_regions():
             what = t[0]
@@ -218,17 +370,26 @@ class Merge3:
                 for i in range(t[1], t[2]):
                     yield WIN_B.lower() + SEP + self.b[i]
             elif what == "conflict":
+                assert len(t) == 7  # conflict tuple has 7 elements
+                _, iz, zmatch, ia, amatch, ib, bmatch = t
                 yield CONFLICT_START
-                for i in range(t[3], t[4]):
+                for i in range(ia, amatch):
                     yield WIN_A.upper() + SEP + self.a[i]
                 yield CONFLICT_MID
-                for i in range(t[5], t[6]):
+                for i in range(ib, bmatch):
                     yield WIN_B.upper() + SEP + self.b[i]
                 yield CONFLICT_END
             else:
                 raise ValueError(what)
 
-    def merge_groups(self):
+    def merge_groups(
+        self,
+    ) -> Iterator[
+        Union[
+            Tuple[Literal["unchanged", "a", "same", "b"], Sequence[T]],
+            Tuple[Literal["conflict"], Sequence[T], Sequence[T], Sequence[T]],
+        ]
+    ]:
         """Yield sequence of line groups.  Each one is a tuple:
 
         'unchanged', lines
@@ -249,22 +410,26 @@ class Merge3:
         for t in self.merge_regions():
             what = t[0]
             if what == "unchanged":
-                yield what, self.base[t[1] : t[2]]
-            elif what == "a" or what == "same":
-                yield what, self.a[t[1] : t[2]]
+                yield "unchanged", self.base[t[1] : t[2]]
+            elif what == "a":
+                yield "a", self.a[t[1] : t[2]]
+            elif what == "same":
+                yield "same", self.a[t[1] : t[2]]
             elif what == "b":
-                yield what, self.b[t[1] : t[2]]
+                yield "b", self.b[t[1] : t[2]]
             elif what == "conflict":
+                assert len(t) == 7  # conflict tuple has 7 elements
+                _, iz, zmatch, ia, amatch, ib, bmatch = t
                 yield (
-                    what,
-                    self.base[t[1] : t[2]],
-                    self.a[t[3] : t[4]],
-                    self.b[t[5] : t[6]],
+                    "conflict",
+                    self.base[iz:zmatch],
+                    self.a[ia:amatch],
+                    self.b[ib:bmatch],
                 )
             else:
                 raise ValueError(what)
 
-    def merge_regions(self):
+    def merge_regions(self) -> Iterator[MergeRegion]:
         """Return sequences of matching and conflicting regions.
 
         This returns tuples, where the first value says what kind we
@@ -348,7 +513,15 @@ class Merge3:
                 ia = aend
                 ib = bend
 
-    def _refine_cherrypick_conflict(self, zstart, zend, astart, aend, bstart, bend):
+    def _refine_cherrypick_conflict(
+        self,
+        zstart: int,
+        zend: int,
+        astart: int,
+        aend: int,
+        bstart: int,
+        bend: int,
+    ) -> Iterator[ConflictRegion]:
         """When cherrypicking b => a, ignore matches with b and base."""
         # Do not emit regions which match, only regions which do not match
         matcher = self.sequence_matcher(
@@ -414,7 +587,10 @@ class Merge3:
         if not yielded_a:
             yield ("conflict", zstart, zend, astart, aend, bstart, bend)
 
-    def reprocess_merge_regions(self, merge_regions):
+    def reprocess_merge_regions(
+        self,
+        merge_regions: Iterator[MergeRegion],
+    ) -> Iterator[ExtendedMergeRegion]:
         """Where there are conflict regions, remove the agreed lines.
 
         Lines where both A and B have made the same changes are
@@ -446,11 +622,14 @@ class Merge3:
                 yield reg
 
     @staticmethod
-    def mismatch_region(next_a, region_ia, next_b, region_ib):
+    def mismatch_region(
+        next_a: int, region_ia: int, next_b: int, region_ib: int
+    ) -> Optional[ReprocessConflictRegion]:
         if next_a < region_ia or next_b < region_ib:
             return "conflict", None, None, next_a, region_ia, next_b, region_ib
+        return None
 
-    def find_sync_regions(self):
+    def find_sync_regions(self) -> List[SyncRegion]:
         """Return list of sync regions, where both descendents match the base.
 
         Generates a list of (base1, base2, a1, a2, b1, b2).  There is
@@ -506,7 +685,7 @@ class Merge3:
 
         return sl
 
-    def find_unconflicted(self):
+    def find_unconflicted(self) -> List[UnconflictedRange]:
         """Return a list of ranges in base that are not conflicted."""
         am = self.sequence_matcher(None, self.base, self.a).get_matching_blocks()
         bm = self.sequence_matcher(None, self.base, self.b).get_matching_blocks()
