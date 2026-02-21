@@ -33,7 +33,7 @@ GitHub = "https://github.com/breezy-team/merge3"
 
 [project.optional-dependencies]
 "dev" = [
-    "ruff==0.14.9",
+    "ruff==0.14.10",
     "mypy>=1.0.0"
 ]
 
